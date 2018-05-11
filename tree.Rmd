@@ -1,0 +1,43 @@
+---
+title: "Final"
+output: html_document
+---
+
+```{r}
+library(tree)
+x <- read.table(file="trainX.txt",header=TRUE)
+y <- read.table(file="trainy.txt",header=TRUE)
+y$label = factor(y$label)
+train = cbind(x,y)
+tree.oj = tree(label~., data = train)
+tree.oj
+summary(tree.oj)
+plot(tree.oj)
+text(tree.oj, pretty = 0)
+
+samp = sample(rep(1:5,length(train)), replace=FALSE) 
+error = c(0,0,0,0,0)
+for(k in 1:5){
+  testd = train[samp==k,]
+  traind = train[!(samp==k),]
+  
+  tr = tree(label~., data = traind)
+  
+  tr.pred <- predict(tr, testd, type = "class")
+  tr.table = table(tr.pred, testd$label)
+  print (tr.table)
+  print (tr)
+}
+error
+```
+
+```{r}
+cv.oj <- cv.tree(tree.oj, FUN = prune.misclass)
+plot(cv.oj$size, cv.oj$dev, type = "b", xlab = "Tree size", ylab = "Deviance")
+prune.oj <- prune.misclass(tree.oj, best = 2)
+plot(prune.oj)
+text(prune.oj, pretty = 0)
+prune.oj <- prune.misclass(tree.oj, best = 3)
+plot(prune.oj)
+text(prune.oj, pretty = 0)
+```
