@@ -1,0 +1,32 @@
+---
+title: "test"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#PCA
+
+```{r}
+load("TrainData.Rdata")
+
+X <- read.table(file="trainX.txt",header=TRUE)
+y <- read.table(file="trainy.txt",header=TRUE)
+res <- prcomp(X, t(Y))
+plot(cumsum(res$sdev^2/sum(res$sdev^2))) #cumulative explained variance
+```
+
+#hierarchical cluster
+
+```{r}
+k2 <- kmeans(res$x[,1:10], centers = 2, iter.max = 100, nstart = 10, 
+                algorithm = "Lloyd")
+x_df <- data.frame(res$x[,1:10], cluster = as.factor((k2$cluster - 2)*-1))
+
+sum(x_df$cluster != trainY) / 133
+
+hcluster <- hclust(dist(data.frame(x)), method = "average")
+plot(hcluster)
+```
