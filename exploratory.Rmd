@@ -59,6 +59,27 @@ points(mu,pch=19,cex=2)
 points(mu,pch=21,cex=2)
 ```
   K-NN
+  
+```{r}
+library(class)
+
+# without dimension reduction
+folds <- sample(rep(1:5, 27), replace = FALSE)[1:133]
+misclass <- matrix(rep(-1, 100), ncol = 5)
+for (m in 1:20) {
+  for (f in 1:5) {
+    xtr <- trainX[which(folds != f),]
+    xte <- trainX[which(folds == f),] 
+    ytr <- trainY[which(folds != f)]
+    yte <- trainY[which(folds == f)]
+    
+    yhat <- knn(xtr, xte, ytr, k = m)
+    misclass[m, f] = sum(yhat != yte) / length(yhat)
+  }
+}
+c <- apply(misclass, 1, mean)
+plot(x = 1:20, y = c)
+```
   Logistic Regression
   Classification Trees
   
