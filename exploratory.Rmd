@@ -1,0 +1,65 @@
+---
+title: "exploratory analysis"
+author: "Nicholas Sclafani"
+date: "5/11/2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+load("TrainData.Rdata")
+```
+
+## Unsupervised Learning
+
+Thoughts: 
+  PCA 
+  
+```{r}
+# PCA + K-Means
+x <- data.matrix(trainX)
+pc <- prcomp(x)
+k2 <- kmeans(pc$x[,1:10], centers = 2, iter.max = 100, nstart = 10, 
+                algorithm = "Lloyd")
+x_df <- data.frame(pc$x[,1:10], cluster = as.factor((k2$cluster - 2)*-1))
+
+sum(x_df$cluster != trainY) / 133
+```
+  
+Methods:
+  K-means 
+  Hiearchical Clustering 
+  
+## Supervised Learning
+
+Thoughts:
+  PCA
+  
+Methods:
+  LDA
+```{r}
+x <- data.matrix(trainX)
+a = lda(x, trainY)
+plot(a)
+at = a$scaling # In terms of lecture notation, this is A^T 
+z = x %*% at
+
+#cols = c("grey","red","blue")
+
+
+
+plot(z)#,col=y.014.tr+1)
+mu = a$means %*% at
+pi = a$prior
+
+points(mu,pch=19,cex=2)
+points(mu,pch=21,cex=2)
+```
+  K-NN
+  Logistic Regression
+  Classification Trees
+  
+  
