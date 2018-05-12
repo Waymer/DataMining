@@ -31,13 +31,13 @@ unsupModel2Labels = unsupModel2(x)
 ## Supervised
 
 library(class)
+y <- factor(trainY)
+train <- cbind(trainX, y)
 
 supModel1 <- function(testX) {
   #knn
   knn_yhat <- knn(trainX, testX, trainY, k = 1)
   # model 2 yhat 
-  y <- factor(trainY)
-  train <- cbind(trainX, y)
   tree.oj <- tree(y~., data = train)
   prune.oj <- prune.misclass(tree.oj, best = 2)
   tree_yhat <- predict(prune.oj, testX, type = "class")
@@ -50,10 +50,11 @@ supModel1 <- function(testX) {
   logreg_yhat = ifelse(preds > 0.5, 1, 0)
   # voting
 }
+
 library(randomForest)
 
 supModel2 <- function(testX) {
-  bag.tree <- randomForest(label~., data = train, mtry=248, importance = T)
+  bag.tree <- randomForest(y~., data = train, mtry=248, importance = T)
   bag_yhat <- predict(bag.tree, testX)
   return(bag_yhat)
 }
