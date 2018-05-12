@@ -41,7 +41,7 @@ Plotting the cumulative variance explained by each additional PC direction, a vi
 
 ### K-Means
 
-```{r}
+```{r, warning=F, message=F}
 # PCA + K-Means
 k2 <- kmeans(pc$x[,1:10], centers = 2, iter.max = 100, nstart = 10, 
                 algorithm = "Lloyd")
