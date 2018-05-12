@@ -36,6 +36,11 @@ supModel1 <- function(testX) {
   #knn
   knn_yhat <- knn(trainX, testX, trainY, k = 1)
   # model 2 yhat 
+  y <- factor(trainY)
+  train <- cbind(trainX, y)
+  tree.oj <- tree(y~., data = train)
+  prune.oj <- prune.misclass(tree.oj, best = 2)
+  tree_yhat = predict(prune.oj, testX, type = "class")
   # model 3 yhat
   # voting
 }
