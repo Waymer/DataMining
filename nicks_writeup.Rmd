@@ -86,42 +86,33 @@ print("Non-PCA Average Hierarchical Classifcation Error: "); sum(arclusterCut !=
 acluster <- hclust(dist(data.frame(trainX)), method = "average")
 plot(acluster, main = "Average Hierarchical Clustering", xlab = "")
 aclusterCut <- cutree(acluster, 2)
-aclusterCut[aclusterCut == 1] = 0
-aclusterCut[aclusterCut == 2] = 1
+aclusterCut[aclusterCut == 1] = 0; aclusterCut[aclusterCut == 2] = 1
 print("Average Hierarchical Classifcation Error: "); sum(aclusterCut != trainY) / 133
 
 #Single Linkage
 srcluster <- hclust(dist(data.frame(x_df)), method = "single")
-plot(scluster, main = "Non-PCA Single Hierarchical Clustering", xlab = "")
 srclusterCut <- cutree(srcluster, 2)
-srclusterCut[srclusterCut == 1] = 0
-srclusterCut[srclusterCut == 2] = 1
+srclusterCut[srclusterCut == 1] = 0; srclusterCut[srclusterCut == 2] = 1
 print("Non-PCA Single Hierarchical Classifcation Error: "); sum(srclusterCut != trainY) / 133
 
 scluster <- hclust(dist(data.frame(trainX)), method = "single")
-plot(scluster, main = "Single Hierarchical Clustering", xlab = "")
 sclusterCut <- cutree(scluster, 2)
-sclusterCut[sclusterCut == 1] = 0
-sclusterCut[sclusterCut == 2] = 1
+sclusterCut[sclusterCut == 1] = 0; sclusterCut[sclusterCut == 2] = 1
 print("Single Hierarchical Classifcation Error: "); sum(sclusterCut != trainY) / 133
 
 #Complete Linkage
 crcluster <- hclust(dist(data.frame(x_df)), method = "complete")
-plot(crcluster, main = "Non-PCA Complete Hierarchical Clustering", xlab = "")
 crclusterCut <- cutree(crcluster, 2)
-crclusterCut[crclusterCut == 1] = 0
-crclusterCut[crclusterCut == 2] = 1
+crclusterCut[crclusterCut == 1] = 0; crclusterCut[crclusterCut == 2] = 1
 print("Non-PCA Complete Hierarchical Classifcation Error: "); sum(crclusterCut != trainY) / 133
 
 ccluster <- hclust(dist(data.frame(trainX)), method = "complete")
-plot(ccluster, main = "Complete Hierarchical Clustering", xlab = "")
 cclusterCut <- cutree(ccluster, 2)
-cclusterCut[cclusterCut == 1] = 0
-cclusterCut[cclusterCut == 2] = 1
+cclusterCut[cclusterCut == 1] = 0; cclusterCut[cclusterCut == 2] = 1
 print("Complete Hierarchical Classifcation Error: "); sum(cclusterCut != trainY) / 133
 ```
 
-We can see that each method, Complete, Single, and Average all yield rather similar results. The branches have poor distribution, so cutting at small levels like 3 would give wildly inconsistent groupings, with one group with few elements and another with many. 
+We can see that each method, Complete, Single, and Average all yield rather similar results. While the hierarchical clustering results for Complete and Single are not shown, they are visually extremely close to that of average hierarchical clustering. The branches have poor distribution, so cutting at small levels like 3 would give wildly inconsistent groupings, with one group with few elements and another with many. 
 
 However, this does not necessarily mean this clustering method would be inappropriate for this context. Taking a closer look at the errors, we see that the classification errors are actually somewhat low. Average linkage has the lowest error, while single has the highest error. With an error of ~12.8%, average hierarchical clustering is a viable method for this problem. 
 
