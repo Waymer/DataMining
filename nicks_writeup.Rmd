@@ -1,7 +1,7 @@
 ---
-title: "Nick's Write-up"
-author: "Nicholas Sclafani"
-date: "5/12/2018"
+title: "Team 25 Final Writeup"
+author: "Andy Lin, Nicholas Sclafani, Johnny Wu, James Yan"
+date: "5/13/2018"
 output: pdf_document
 latex_engine: xelatex
 ---
