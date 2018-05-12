@@ -66,6 +66,11 @@ bag.tree
 
 forest = randomForest(label~., data = train, subset = newtrain, importance = T)
 forest
+
+bag.pred = predict(bag.tree, train)
+table(train$label, bag.pred)
+forest.pred = predict(forest, train)
+table(train$label, forest.pred)
 ```
 
-Because we only had one error for our decision tree on the training set, we feel that boosting would not have a significant effect on classification. We decided to use random forests and bagging in order to reduce the variance in order to achieve better results on the test data.
+Because we only had one error for our decision tree on the training set, we feel that boosting would not have a significant effect on classification. We decided to use random forests and bagging in order to reduce the variance in order to achieve better results on the test data. We found that bagging and random forests achieved the same misclassification rate on the training data, which was slightly higher than the misclassification rate for the single decision tree. (1/133 vs. 4/133)
