@@ -1,5 +1,5 @@
 ---
-title: "Nick’s Write-up"
+title: "Nick's Write-up"
 author: "Nicholas Sclafani"
 date: "5/12/2018"
 output: pdf_document
@@ -17,7 +17,7 @@ library(tidyverse)
 
 ## Introduction
 
-The data covered in this writeup consists of 248 features, and 133 rows. These features correspond to specific genes, while the rows correspond to patient data. Each of these rows are classified as control or case classes. We aim to explore methods in classifying these patients given their gene information. The various methods we will use include both supervised and unsupervised methods. We will compare these approaches, as well as their accuracy and misclassification rates. 
+The data covered in this writeup consists of 248 features, and 133 rows. These features correspond to specific genes, while the rows correspond to patient data. Each of these rows are classified as control or case classes. We aim to explore methods in classifying these patients given their gene information. The various methods we will use include both supervised and unsupervised methods, like hierarchical clustering, k-means, k nearest neighbors, decision trees, regression, etc. We will compare these approaches, as well as their accuracy and misclassification rates. 
 
 ## Unsupervised Learning
 
@@ -79,8 +79,7 @@ We noticed that the error rate without dimension reduction is about the same, bu
 arcluster <- hclust(dist(data.frame(x_df)), method = "average")
 plot(arcluster, main = "Non-PCA Average Hierarchical Clustering", xlab = "")
 arclusterCut <- cutree(arcluster, 2)
-arclusterCut[arclusterCut == 1] = 0
-arclusterCut[arclusterCut == 2] = 1
+arclusterCut[arclusterCut == 1] = 0; arclusterCut[arclusterCut == 2] = 1
 print("Non-PCA Average Hierarchical Classifcation Error: "); sum(arclusterCut != trainY) / 133
 
 acluster <- hclust(dist(data.frame(trainX)), method = "average")
