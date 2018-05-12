@@ -1,14 +1,98 @@
 ---
-title: "Final"
+title: "Untitled"
+author: "James Yan"
+date: "May 11, 2018"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r}
+library(MASS)
 ```
 
 ```{r}
-X <- read.table(file="trainX.txt",header=TRUE)
-y <- read.table(file="trainy.txt",header=TRUE)
+load("TrainData.Rdata")
 
+y = as.numeric(trainY)
+x = as.matrix(trainX)
+
+a = lda(x, y)
+summary(a)
+
+at = a$scaling
+
+z = x %*% at
+
+plot(z, col = y + 1)
+plot(a)
+##a$scaling
+```
+
+```{r}
+ch.index = function(x, kmax, iter.max = 100, nstart = 10, algorithm = "Lloyd"){
+  ch = numeric(length=kmax-1)
+  n = nrow(x)
+  
+  for(k in 2:kmax){
+    model = kmeans(x, centers = k, nstart = nstart, iter.max = iter.max, algorithm = algorithm)
+    wcv = model$tot.withinss
+    bcv = model$betweenss
+    chInd = (bcv/(k-1)) / (wcv/(n-k))
+    ch[k-1] = chInd
+  }
+  
+  return(list(k=2:kmax, ch = ch))
+}
+
+Xpc = prcomp(trainX, center = FALSE)
+first2scores = Xpc$x[,1:2]
+
+ch = ch.index(trainX, 10)
+bestk = ch$k[which(ch$ch==max(ch$ch))]
+
+x1mod = kmeans(first2scores, bestk, iter.max = 100, nstart = 10, algorithm = "Lloyd")
+
+plot(first2scores, col = x1mod$cluster)
+points(x1mod$centers, cex = 2, pch = 20, col = "blue")
+
+clusters = x1mod$cluster
+table(clusters, trainY)
+
+x1mod$cluster
+
+errors = sum(table(clusters, trainY)[c(2,3)])
+errors
+errors/(nrow(trainX))
+```
+
+```{r}
+plot(first2scores, pch = as.character(trainY))
+
+lreg = glm(formula = trainY ~ first2scores, family = "binomial")
+summary(lreg)
+
+preds = predict.glm(lreg)
+preds = ifelse(preds > 0.5, 1, 0)
+
+misClassRate = mean(preds != trainY)
+misClassRate
+
+folds = 10
+
+samp = sample(rep(1:folds,nrow(first2scores)/folds), replace = F)
+
+cvMisclassRates = c()
+
+
+for(k in 1:folds){
+  testsetY = trainY[samp==k]
+  trainsetY = trainY[!(samp==k)]
+  trainsetscores = first2scores[!(samp==k),]
+  
+  lregfit = glm(formula = trainsetY ~ trainsetscores, family = "binomial")
+  
+  preds = predict.glm(lregfit, newdata = testsetY)
+  preds = ifelse(preds > 0.5, 1, 0)
+  
+
+}
 ```
