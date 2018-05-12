@@ -21,6 +21,8 @@ The data covered in this writeup consists of 248 features, and 133 rows. These f
 
 ## Unsupervised Learning
 
+
+
 ### PCA
 
 While it is difficult to visualize the structure of 248-dimensional data, we can perform PCA to gather a better sense for the how our data looks along the most important PC directions.
@@ -72,7 +74,7 @@ We noticed that the error rate without dimension reduction is about the same, bu
 
 ### Hierarchical Clustering
 
-```{r}
+```{r, message=F, warning=F}
 #Average Linkage
 arcluster <- hclust(dist(data.frame(x_df)), method = "average")
 plot(arcluster, main = "Non-PCA Average Hierarchical Clustering", xlab = "")
@@ -117,7 +119,7 @@ Additionally, reducing the dimensions through PCA does not seem to have much aff
 
 ## Supervised Learning
 
-### Logistic Regression
+## Logistic Regression
 
 Logistic regression fits a model to predict the outcome of a binary response variable. This is appropriate in this case because our response variable is binary and takes on values of either 0 or 1. In order to fit a logistic regression to this data, first we reduced the dimension of the data through PCA, and then we fit a logistic regression to predict the response variables using the first 2 principal component scores as predictors. The first 2 principal component scores are the ones that explain most of the variability in the data, and reducing to 2 dimensions allows us to create more interpretable visualizations.
 
@@ -125,7 +127,7 @@ Using a logistic regression with the first 2 PCA scores as predictors resulted i
 
 We also considered fitting nonlinear, more complex logistic regression models instead of the simple linear regression on two PC scores. However, the more complex fits did not result in any improvement on the errors, and in terms of visual interpretation the decision boundary did not appear to change. This indicated that the simple linear fit was more appropriate than a quadratic or a cubic fit. The decision boundary for this is shown below.
 
-```{r}
+```{r, warning=F, message=F}
 Xpc = prcomp(trainX, center = FALSE)
 first2scores = Xpc$x[,1:2]
 
@@ -179,4 +181,4 @@ plot(prune.oj)
 text(prune.oj, pretty = 0)
 ```
 
-Trees have inherently high variance and so if the values for X206 correspond to different labels in the test data, then the tree would produce a larger misclassification rate. Therefore, we decided to look at random forests, boosting, and bagging. Because we only had one error for our decision tree on the training set, we feel that boosting would not have a significant effect on classification. We decided to use random forests and bagging in order to reduce the variance in order to achieve better results on the test data. We found that bagging and random forests achieved the same misclassification rate on the training data (3%), which was slightly higher than the misclassification rate for the single decision tree (0.75%).
+Trees have inherently high variance and so if the values for X206 correspond to different labels in the test data, then the tree would produce a larger misclassification rate. Therefore, we decided to look at random forests, boosting, and bagging. Because we only had one error for our decision tree on the training set, we feel that boosting would not have a significant effect on classification. We decided to use random forests and bagging in order to reduce the variance in order to achieve better results on the test data. We found that bagging usually had a lower misclassification rate compared to the random forest, but both were larger than the misclassification rate for the single decision tree (0.75%).
