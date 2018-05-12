@@ -40,7 +40,14 @@ k2 <- kmeans(res$x[,1:10], centers = 2, iter.max = 100, nstart = 10,
 x_df <- data.frame(res$x[,1:10], cluster = as.factor((k2$cluster - 2)*-1))
 
 #Average Linkage
-acluster <- hclust(dist(data.frame(x_df)), method = "average")
+arcluster <- hclust(dist(data.frame(x_df)), method = "average")
+plot(arcluster, main = "Non-PCA Average Hierarchical Clustering", xlab = "")
+arclusterCut <- cutree(arcluster, 2)
+arclusterCut[arclusterCut == 1] = 0
+arclusterCut[arclusterCut == 2] = 1
+print("Non-PCA Average Hierarchical Classifcation Error: "); sum(arclusterCut != trainY) / 133
+
+acluster <- hclust(dist(data.frame(trainX)), method = "average")
 plot(acluster, main = "Average Hierarchical Clustering", xlab = "")
 aclusterCut <- cutree(acluster, 2)
 aclusterCut[aclusterCut == 1] = 0
@@ -48,7 +55,14 @@ aclusterCut[aclusterCut == 2] = 1
 print("Average Hierarchical Classifcation Error: "); sum(aclusterCut != trainY) / 133
 
 #Single Linkage
-scluster <- hclust(dist(data.frame(x_df)), method = "single")
+srcluster <- hclust(dist(data.frame(x_df)), method = "single")
+plot(scluster, main = "Non-PCA Single Hierarchical Clustering", xlab = "")
+srclusterCut <- cutree(srcluster, 2)
+srclusterCut[srclusterCut == 1] = 0
+srclusterCut[srclusterCut == 2] = 1
+print("Non-PCA Single Hierarchical Classifcation Error: "); sum(srclusterCut != trainY) / 133
+
+scluster <- hclust(dist(data.frame(trainX)), method = "single")
 plot(scluster, main = "Single Hierarchical Clustering", xlab = "")
 sclusterCut <- cutree(scluster, 2)
 sclusterCut[sclusterCut == 1] = 0
@@ -56,12 +70,29 @@ sclusterCut[sclusterCut == 2] = 1
 print("Single Hierarchical Classifcation Error: "); sum(sclusterCut != trainY) / 133
 
 #Complete Linkage
-ccluster <- hclust(dist(data.frame(x_df)), method = "complete")
+crcluster <- hclust(dist(data.frame(x_df)), method = "complete")
+plot(crcluster, main = "Non-PCA Complete Hierarchical Clustering", xlab = "")
+crclusterCut <- cutree(crcluster, 2)
+crclusterCut[crclusterCut == 1] = 0
+crclusterCut[crclusterCut == 2] = 1
+print("Non-PCA Complete Hierarchical Classifcation Error: "); sum(crclusterCut != trainY) / 133
+
+ccluster <- hclust(dist(data.frame(trainX)), method = "complete")
 plot(ccluster, main = "Complete Hierarchical Clustering", xlab = "")
 cclusterCut <- cutree(ccluster, 2)
 cclusterCut[cclusterCut == 1] = 0
 cclusterCut[cclusterCut == 2] = 1
 print("Complete Hierarchical Classifcation Error: "); sum(cclusterCut != trainY) / 133
 
-#We can see that each method, Complete, Single, and Average all yield rather similar results. The branches have poor distribution, so cutting at small levels like 3 would give wildly inconsistent groupings, with one group with few elements and another with many. However, this does not necessarily mean this clustering method would be inappropriate for this context. Taking a closer look at the errors, we see that the classification errors are actually somewhat low. Average linkage has the lowest error, while single has the highest error. With an error of ~12.8%, average hierarchical clustering is a viable method for this problem. 
+#We can see that each method, Complete, Single, and Average all yield rather similar results. The branches have poor distribution, so cutting at small levels like 3 would give wildly inconsistent groupings, with one group with few elements and another with many. However, this does not necessarily mean this clustering method would be inappropriate for this context. Taking a closer look at the errors, we see that the classification errors are actually somewhat low. Average linkage has the lowest error, while single has the highest error. With an error of ~12.8%, average hierarchical clustering is a viable method for this problem. Additionally, reducing the dimensions through PCA does not seem to have much affect on the clustering reuslts. The classification errors for both average and single linkage clustering stayed exactly the same with or without prior PCA. However complete linakge seemed to change, although very minor. While dimension reduction was not too useful in this case, dimension reduction is still important for ease of use, visualization, and overall handling. 
+
+av_h_clust <- function(dat) {
+  acluster <- hclust(dist(data.frame(dat)), method = "average")
+  aclusterCut <- cutree(acluster, 2)
+  aclusterCut[aclusterCut == 1] = 0
+  aclusterCut[aclusterCut == 2] = 1
+  return(aclusterCut)
+}
+
+av_h_labels = av_h_clust(x_df)
 ```
