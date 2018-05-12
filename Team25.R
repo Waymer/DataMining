@@ -4,14 +4,19 @@ load("data/TrainData.RData")
 
 # Model 1: K-Means
 
-x <- data.matrix(trainX)
-pc <- prcomp(x)
-k2 <- kmeans(pc$x[,1:10], centers = 2, iter.max = 100, nstart = 10, 
-             algorithm = "Lloyd")
-unsupModel1 <- function(testX) {
-  return(clusters(x_new, k2$centers) - 1)
+
+
+unsupModel1 <- function(x_new) {
+  x <- data.matrix(x_new)
+  pc <- prcomp(x)
+  k2 <- kmeans(pc$x[,1:10], centers = 2, iter.max = 100, nstart = 10, 
+               algorithm = "Lloyd")
+  return(k2$cluster - 1)
 }
 
+
+
+# Hierarchical Clustering
 
 unsupModel2 <- function(dat) {
   acluster <- hclust(dist(data.frame(dat)), method = "average")
@@ -22,7 +27,6 @@ unsupModel2 <- function(dat) {
 }
 
 unsupModel2Labels = unsupModel2(x)
-
 
 ## Supervised
 
