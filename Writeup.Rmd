@@ -41,21 +41,27 @@ x_df <- data.frame(res$x[,1:10], cluster = as.factor((k2$cluster - 2)*-1))
 
 #Average Linkage
 acluster <- hclust(dist(data.frame(x_df)), method = "average")
-plot(acluster)
-aclusterCut <- cutree(acluster, 3)
-sum(aclusterCut != trainY) / 133
+plot(acluster, main = "Average Hierarchical Clustering", xlab = "")
+aclusterCut <- cutree(acluster, 2)
+aclusterCut[aclusterCut == 1] = 0
+aclusterCut[aclusterCut == 2] = 1
+print("Average Hierarchical Classifcation Error: "); sum(aclusterCut != trainY) / 133
 
 #Single Linkage
 scluster <- hclust(dist(data.frame(x_df)), method = "single")
-plot(scluster)
-sclusterCut <- cutree(scluster, 3)
-sum(sclusterCut != trainY) / 133
+plot(scluster, main = "Single Hierarchical Clustering", xlab = "")
+sclusterCut <- cutree(scluster, 2)
+sclusterCut[sclusterCut == 1] = 0
+sclusterCut[sclusterCut == 2] = 1
+print("Single Hierarchical Classifcation Error: "); sum(sclusterCut != trainY) / 133
 
 #Complete Linkage
 ccluster <- hclust(dist(data.frame(x_df)), method = "complete")
-plot(ccluster)
-cclusterCut <- cutree(ccluster, 3)
-sum(cclusterCut != trainY) / 133
+plot(ccluster, main = "Complete Hierarchical Clustering", xlab = "")
+cclusterCut <- cutree(ccluster, 2)
+cclusterCut[cclusterCut == 1] = 0
+cclusterCut[cclusterCut == 2] = 1
+print("Complete Hierarchical Classifcation Error: "); sum(cclusterCut != trainY) / 133
 
-#We can see that each method, Complete, Single, and Average all yield rather similar results. The branches have poor distribution, so cutting at small levels like 3 would give wildly inconsistent groupings, with one group with few elements and another with many. We also see from the error rates that each of these hierarchical clustering methods have high errors, all above 80%. Because of these issues, hierarchical clustering is likely suboptimal for this context. 
+#We can see that each method, Complete, Single, and Average all yield rather similar results. The branches have poor distribution, so cutting at small levels like 3 would give wildly inconsistent groupings, with one group with few elements and another with many. However, this does not necessarily mean this clustering method would be inappropriate for this context. Taking a closer look at the errors, we see that the classification errors are actually somewhat low. Average linkage has the lowest error, while single has the highest error. With an error of ~12.8%, average hierarchical clustering is a viable method for this problem. 
 ```
