@@ -15,7 +15,8 @@ summary(tree.oj)
 plot(tree.oj)
 text(tree.oj, pretty = 0)
 
-samp = sample(rep(1:5,length(train)), replace=FALSE) 
+
+samp = sample(rep(1:5,length(train)/5), replace=FALSE) 
 error = c(0,0,0,0,0)
 for(k in 1:5){
   testd = train[samp==k,]
@@ -25,8 +26,9 @@ for(k in 1:5){
   
   tr.pred <- predict(tr, testd, type = "class")
   tr.table = table(tr.pred, testd$label)
-  print (tr.table)
-  print (tr)
+  og.tr.pred = predict(prune.oj, testd, type = "class")
+  tr.table = table(og.tr.pred, testd$label)
+  print(tr.table)
 }
 error
 ```
@@ -41,3 +43,29 @@ prune.oj <- prune.misclass(tree.oj, best = 3)
 plot(prune.oj)
 text(prune.oj, pretty = 0)
 ```
+
+```{r}
+final.tree.oj = tree(label~., data = train)
+supModel1 = function(testdata){
+  labels = predict(final.tree.oj, newdata = testdata, type = "class")
+  return(labels)
+}
+supModel1(train)
+```
+
+We decided to look at classification trees as a possible method for classifying the data. The predictions were made using the tree() function on the training data provided to us. Since we did not have access to the test data, we used 5-fold cross validation to create train and test data sets, and we created a new tree for each different training set and compared the test errors. We found that the tree created from this method of cross validation was the same as the original tree created by using the entire training data set. Then we used cross validation again to determine the optimal tree size and found that it was actually a classification stump, as in there was only one split in the tree based on the value of X206. Initially there were some concerns for overfitting since the tree only made one misclassification error out of the 133 observations in the training set, but the fact that the tree is only making one comparison would indicate otherwise. This also presents another possible issue. Trees have inherently high variance and so if the values for X206 correspond to different labels in the test data, then the tree would produce a larger misclassification rate. Therefore, we decided to look at random forests, boosting, and bagging.
+
+
+
+```{r}
+library(randomForest)
+newtrain = sample (1: nrow ( train ) , nrow ( train ) /2)
+set.seed(1)
+bag.tree = randomForest(label~., data = train, subset = newtrain, mtry=248, importance = T)
+bag.tree
+
+forest = randomForest(label~., data = train, subset = newtrain, importance = T)
+forest
+```
+
+Because we only had one error for our decision tree on the training set, we feel that boosting would not have a significant effect on classification. We decided to use random forests and bagging in order to reduce the variance in order to achieve better results on the test data.
