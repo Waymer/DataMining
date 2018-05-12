@@ -21,8 +21,6 @@ The data covered in this writeup consists of 248 features, and 133 rows. These f
 
 ## Unsupervised Learning
 
-
-
 ### PCA
 
 While it is difficult to visualize the structure of 248-dimensional data, we can perform PCA to gather a better sense for the how our data looks along the most important PC directions.
@@ -119,7 +117,7 @@ Additionally, reducing the dimensions through PCA does not seem to have much aff
 
 ## Supervised Learning
 
-## Logistic Regression
+### Logistic Regression
 
 Logistic regression fits a model to predict the outcome of a binary response variable. This is appropriate in this case because our response variable is binary and takes on values of either 0 or 1. In order to fit a logistic regression to this data, first we reduced the dimension of the data through PCA, and then we fit a logistic regression to predict the response variables using the first 2 principal component scores as predictors. The first 2 principal component scores are the ones that explain most of the variability in the data, and reducing to 2 dimensions allows us to create more interpretable visualizations.
 
