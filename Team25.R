@@ -13,6 +13,16 @@ unsupModel1 <- function(testX) {
 }
 
 
+unsupModel2 <- function(dat) {
+  acluster <- hclust(dist(data.frame(dat)), method = "average")
+  aclusterCut <- cutree(acluster, 2)
+  aclusterCut[aclusterCut == 1] = 0
+  aclusterCut[aclusterCut == 2] = 1
+  return(aclusterCut)
+}
+
+unsupModel2Labels = unsupModel2(x)
+
 
 ## Supervised
 

@@ -119,16 +119,6 @@ cclusterCut <- cutree(ccluster, 2)
 cclusterCut[cclusterCut == 1] = 0
 cclusterCut[cclusterCut == 2] = 1
 print("Complete Hierarchical Classifcation Error: "); sum(cclusterCut != trainY) / 133
-
-av_h_clust <- function(dat) {
-  acluster <- hclust(dist(data.frame(dat)), method = "average")
-  aclusterCut <- cutree(acluster, 2)
-  aclusterCut[aclusterCut == 1] = 0
-  aclusterCut[aclusterCut == 2] = 1
-  return(aclusterCut)
-}
-
-av_h_labels = av_h_clust(x_df)
 ```
 
 We can see that each method, Complete, Single, and Average all yield rather similar results. The branches have poor distribution, so cutting at small levels like 3 would give wildly inconsistent groupings, with one group with few elements and another with many. 
