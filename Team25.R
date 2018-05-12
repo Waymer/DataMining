@@ -42,6 +42,12 @@ supModel1 <- function(testX) {
   prune.oj <- prune.misclass(tree.oj, best = 2)
   tree_yhat <- predict(prune.oj, testX, type = "class")
   # model 3 yhat
+  Xpc = prcomp(testX, center = FALSE)
+  first2scores = Xpc$x[,1:2]
+  lreg = glm(formula = trainY ~ first2scores, family = "binomial")
+  
+  logreg_yhat = predict.glm(lreg)
+  logreg_yhat = ifelse(preds > 0.5, 1, 0)
   # voting
 }
 library(randomForest)
