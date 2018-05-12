@@ -119,6 +119,24 @@ Additionally, reducing the dimensions through PCA does not seem to have much aff
 
 ## Supervised Learning
 
+## Logistic Regression
+
+Logistic regression fits a model to predict the outcome of a binary response variable. This is appropriate in this case because our response variable is binary and takes on values of either 0 or 1. In order to fit a logistic regression to this data, first we reduced the dimension of the data through PCA, and then we fit a logistic regression to predict the response variables using the first 2 principal component scores as predictors. The first 2 principal component scores are the ones that explain most of the variability in the data, and reducing to 2 dimensions allows us to create more interpretable visualizations.
+
+Using a logistic regression with the first 2 PCA scores as predictors resulted in a test error of 5.9%, using 5-fold cross-validation. 
+
+We also considered fitting nonlinear, more complex logistic regression models instead of the simple linear regression on two PC scores. However, the more complex fits did not result in any improvement on the errors, and in terms of visual interpretation the decision boundary did not appear to change. This indicated that the simple linear fit was more appropriate than a quadratic or a cubic fit. The decision boundary for this is shown below.
+
+```{r}
+Xpc = prcomp(trainX, center = FALSE)
+first2scores = Xpc$x[,1:2]
+
+lreg = glm(formula = trainY ~ first2scores, family = "binomial")
+
+plot(first2scores, pch = as.character(trainY))
+abline(a = lreg$coefficients[3]/lreg$coefficients[1], b = -lreg$coefficients[2]/lreg$coefficients[1], col = "blue", lwd = 2)
+```
+
 ### K-NN
 
 For K-NN, our goal is to determine the number of neighbors, K, that best classifies our data. In order to do this, we ran 5-fold cross-validaiton. The smallest error was consistentily found with K = 1, K = 2, K = 3, and K = 4. While our first instict was to choose K = 3 to prevent noise, we found that K = 1 consistently had the smallest standard deviation in its error results, and this a 1 Nearest Neighbor model is our optimal choice for a K-NN model.
