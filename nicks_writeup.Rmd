@@ -1,0 +1,77 @@
+---
+title: "Nick’s Write-up"
+author: "Nicholas Sclafani"
+date: "5/12/2018"
+output: pdf_document
+latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+```
+
+```{r}
+load("TrainData.Rdata")
+library(tidyverse)
+```
+
+## Unsupervised Learning
+
+### PCA
+```{r}
+x <- data.matrix(trainX)
+pc <- prcomp(x)
+pc_df <- data.frame(pc$x[,1:10], y = as.factor(trainY))
+ggplot(pc_df, aes(x = PC1, y = PC2, color = y)) + geom_point()
+```
+
+Looking at just the first two principle
+
+
+
+### K-Means with PCA
+```{r}
+# PCA + K-Means
+k2 <- kmeans(pc$x[,1:10], centers = 2, iter.max = 100, nstart = 10, 
+                algorithm = "Lloyd")
+x_df <- data.frame(pc$x[,1:10], cluster1 = as.factor((k2$cluster - 2)*-1),
+                   cluster2 = as.factor(k2$cluster - 1))
+
+min(sum(x_df$cluster1 != trainY), sum(x_df$cluster2 != trainY)) / 133
+```
+
+```{r}
+# K-Means w/o PCA
+k2 <- kmeans(x, centers = 2, iter.max = 100, nstart = 10, 
+                algorithm = "Lloyd")
+pc_df <- mutate(pc_df, cluster1 = as.factor((k2$cluster - 2)*-1),
+                cluster2 = as.factor(k2$cluster - 1))
+min(sum(x_df$cluster1 != trainY), sum(x_df$cluster2 != trainY)) / 133
+ggplot(x_df, aes(x = PC1, y = PC2, color = cluster2)) + geom_point()
+```
+
+
+
+## Supervised Learning
+
+### K-NN
+
+```{r}
+library(class)
+# without dimension reduction
+folds <- sample(rep(1:5, 27), replace = FALSE)[1:133]
+misclass <- matrix(rep(-1, 100), ncol = 5)
+for (m in 1:20) {
+  for (f in 1:5) {
+    xtr <- trainX[which(folds != f),]
+    xte <- trainX[which(folds == f),] 
+    ytr <- trainY[which(folds != f)]
+    yte <- trainY[which(folds == f)]
+    
+    yhat <- knn(xtr, xte, ytr, k = m)
+    misclass[m, f] = sum(yhat != yte) / length(yhat)
+  }
+}
+c <- apply(misclass, 1, mean)
+plot(x = 1:20, y = c)
+```
