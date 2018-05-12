@@ -40,7 +40,14 @@ supModel1 <- function(testX) {
   train <- cbind(trainX, y)
   tree.oj <- tree(y~., data = train)
   prune.oj <- prune.misclass(tree.oj, best = 2)
-  tree_yhat = predict(prune.oj, testX, type = "class")
+  tree_yhat <- predict(prune.oj, testX, type = "class")
   # model 3 yhat
   # voting
+}
+library(randomForest)
+
+supModel2 <- function(testX) {
+	bag.tree = randomForest(label~., data = train, mtry=248, importance = T)
+	bag_yhat = predict(bag.tree, testX)
+	return(bag_yhat)
 }
