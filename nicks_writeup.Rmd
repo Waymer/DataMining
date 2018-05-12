@@ -17,7 +17,12 @@ library(tidyverse)
 
 ## Unsupervised Learning
 
+
+
 ### PCA
+
+While it is difficult to visualize the structure of 248-dimensional data, we can perform PCA to gather a better sense for the how our data looks along the most important PC directions.
+
 ```{r}
 x <- data.matrix(trainX)
 pc <- prcomp(x)
@@ -25,38 +30,51 @@ pc_df <- data.frame(pc$x[,1:10], y = as.factor(trainY))
 ggplot(pc_df, aes(x = PC1, y = PC2, color = y)) + geom_point()
 ```
 
-Looking at just the first two principle
+Looking at just the first two principle components we can already some structure in the data with Class 0 points for the most part clustered around the origin and Class 1 points for the most part are negative in PC 1 and around the origin in PC 2.
 
+We can use the first 10 PC direction to explain __ % of the data.
 
+### K-Means
 
-### K-Means with PCA
 ```{r}
 # PCA + K-Means
 k2 <- kmeans(pc$x[,1:10], centers = 2, iter.max = 100, nstart = 10, 
                 algorithm = "Lloyd")
 x_df <- data.frame(pc$x[,1:10], cluster1 = as.factor((k2$cluster - 2)*-1),
                    cluster2 = as.factor(k2$cluster - 1))
+x_df$y <- as.factor(trainY)
 
-min(sum(x_df$cluster1 != trainY), sum(x_df$cluster2 != trainY)) / 133
+if (sum(x_df$cluster1 != trainY) < sum(x_df$cluster2 != trainY)) {
+  x_df$cluster = x_df$cluster1
+} else {
+  x_df$cluster = x_df$cluster2
+}
+
+error_rate = sum(x_df$cluster != trainY) / 133
+
+x_df <- x_df %>% mutate(correct = 
+                          case_when(
+                            (cluster !=  y) ~ "x",
+                            TRUE ~ ""))
+ggplot(x_df, aes(x = PC1, y = PC2)) + geom_point(aes(color = cluster)) + 
+  geom_text(aes(label = correct))
 ```
 
+We can see even with the just the first 2 PC scores that the mistakes were all made at points that should be in Class 1 but that lie near the origin where most of Class 0 is clustered. The error rate is:
 ```{r}
-# K-Means w/o PCA
-k2 <- kmeans(x, centers = 2, iter.max = 100, nstart = 10, 
-                algorithm = "Lloyd")
-pc_df <- mutate(pc_df, cluster1 = as.factor((k2$cluster - 2)*-1),
-                cluster2 = as.factor(k2$cluster - 1))
-min(sum(x_df$cluster1 != trainY), sum(x_df$cluster2 != trainY)) / 133
-ggplot(x_df, aes(x = PC1, y = PC2, color = cluster2)) + geom_point()
+error_rate
 ```
 
+We noticed that the error rate without dimension reduction is about the same, but with more severe dimension reduction, i.e. using only the first two principal components, there is a slight increase in error.
 
 
 ## Supervised Learning
 
 ### K-NN
 
+For K-NN, our goal is to determine the number of neighbors, K, that best classifies our data. In order to do this, we ran 5-fold cross-validaiton. The smallest error was consistentily found with K = 1, K = 2, K = 3, and K = 4. While our first instict was to choose K = 3 to prevent noise, we found that K = 1 consistently had the smallest standard deviation in its error results, and this a 1 Nearest Neighbor model is our optimal choice for a K-NN model.
 ```{r}
+set.seed(99)
 library(class)
 # without dimension reduction
 folds <- sample(rep(1:5, 27), replace = FALSE)[1:133]
@@ -73,5 +91,9 @@ for (m in 1:20) {
   }
 }
 c <- apply(misclass, 1, mean)
-plot(x = 1:20, y = c)
+sd <- apply(misclass, 1, sd)
+knn_df <- data.frame(c, sd, k = 1:20)
+ggplot(knn_df, aes(x = k, y = c)) + geom_point() + 
+  geom_errorbar(aes(ymin=c-sd, ymax=c+sd)) + 
+  labs(x = "K", y = "Misclassification Rate")
 ```
