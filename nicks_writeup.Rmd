@@ -15,6 +15,10 @@ load("TrainData.Rdata")
 library(tidyverse)
 ```
 
+## Introduction
+
+The data covered in this writeup consists of 248 features, and 133 rows. These features correspond to specific genes, while the rows correspond to patient data. Each of these rows are classified as control or case classes. We aim to explore methods in classifying these patients given their gene information. The various methods we will use include both supervised and unsupervised methods. We will compare these approaches, as well as their accuracy and misclassification rates. 
+
 ## Unsupervised Learning
 
 
