@@ -27,6 +27,24 @@ x_df <- data.frame(res$x[,1:10], cluster = as.factor((k2$cluster - 2)*-1))
 
 sum(x_df$cluster != trainY) / 133
 
-hcluster <- hclust(dist(data.frame(x)), method = "average")
-plot(hcluster)
+#Average Linkage
+acluster <- hclust(dist(data.frame(x_df)), method = "average")
+plot(acluster)
+aclusterCut <- cutree(acluster, 3)
+table(aclusterCut, trainY)
+sum(aclusterCut != trainY) / 133
+
+#Single Linkage
+scluster <- hclust(dist(data.frame(x_df)), method = "single")
+plot(scluster)
+sclusterCut <- cutree(scluster, 3)
+table(sclusterCut, trainY)
+sum(sclusterCut != trainY) / 133
+
+#Complete Linkage
+ccluster <- hclust(dist(data.frame(x_df)), method = "complete")
+plot(ccluster)
+cclusterCut <- cutree(ccluster, 3)
+table(cclusterCut, trainY)
+sum(cclusterCut != trainY) / 133
 ```
