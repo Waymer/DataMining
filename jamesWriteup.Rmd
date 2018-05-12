@@ -1,0 +1,182 @@
+---
+title: "Untitled"
+author: "James Yan"
+date: "May 11, 2018"
+output: html_document
+---
+
+```{r}
+set.seed(1997)
+library(MASS)
+
+load("TrainData.Rdata")
+```
+
+## PCA and K-means Clustering
+
+```{r}
+
+#PCA & k-means clustering on PC1 & PC2
+# use CH index to decide on clusters = 2
+
+ch.index = function(x, kmax, iter.max = 100, nstart = 10, algorithm = "Lloyd"){
+  ch = numeric(length=kmax-1)
+  n = nrow(x)
+  
+  for(k in 2:kmax){
+    model = kmeans(x, centers = k, nstart = nstart, iter.max = iter.max, algorithm = algorithm)
+    wcv = model$tot.withinss
+    bcv = model$betweenss
+    chInd = (bcv/(k-1)) / (wcv/(n-k))
+    ch[k-1] = chInd
+  }
+  
+  return(list(k=2:kmax, ch = ch))
+}
+
+Xpc = prcomp(trainX, center = FALSE)
+first2scores = Xpc$x[,1:2]
+
+ch = ch.index(trainX, 10)
+bestk = ch$k[which(ch$ch==max(ch$ch))]
+
+x1mod = kmeans(first2scores, bestk, iter.max = 100, nstart = 10, algorithm = "Lloyd")
+
+plot(first2scores, col = x1mod$cluster)
+points(x1mod$centers, cex = 2, pch = 20, col = "blue")
+
+clusters = x1mod$cluster
+table(clusters, trainY)
+
+x1mod$cluster
+
+errors = sum(table(clusters, trainY)[c(2,3)])
+errors
+errors/(nrow(trainX))
+```
+
+We use PCA to find the first 2 principal component score vectors, and the plot the data according to these first 2 scores. These 2 scores account for more variability in the data than any of the other principal component scores.
+
+We achieve the maximum CH index when k=2, so we split the data into 2 clusters with k-means clustering. This results in an error rate of 12.03%.
+
+## Logistic Regression with PC Scores
+
+```{r, message = FALSE, warning = FALSE}
+# logistic regression fit using glm & cv error
+
+lreg = glm(formula = trainY ~ first2scores, family = "binomial")
+summary(lreg)
+
+plot(first2scores, pch = as.character(trainY))
+
+preds = predict.glm(lreg)
+preds = ifelse(preds > 0.5, 1, 0)
+
+misClassRate = mean(preds != trainY)
+misClassRate
+
+folds = 5
+
+samp = sample(rep(1:folds,nrow(first2scores)/folds), replace = F)
+
+cvMisclassRates = c()
+
+
+for(k in 1:folds){
+  print(k)
+  testsetY = trainY[samp==k]
+  testsetscores = first2scores[samp==k,]
+  
+  trainsetY = trainY[!(samp==k)]
+  trainsetscores = first2scores[!(samp==k),]
+  
+  traindf = data.frame(yvals = trainsetY, scores = trainsetscores)
+  testdf = data.frame(yvals = testsetY, scores = testsetscores)
+  
+  lregfit = glm(formula = yvals ~ scores.PC1 + scores.PC2, data = traindf, family = "binomial")
+  
+  preds = predict.glm(lregfit, newdata = testdf)
+  preds = ifelse(preds > 0.5, 1, 0)
+  
+  misClassRate = mean(preds != testsetY)
+  cvMisclassRates = c(cvMisclassRates, misClassRate)
+
+}
+
+#cvMisclassRates
+mean(cvMisclassRates)
+```
+
+We use glm to fit a logistic regression model to the data with the class labels regressed on the first 2 principal component scores. Using this model to predict, we receive a 6.02% training error rate and a cross-validated 5.96% test error rate using 5-fold cross validation.
+
+## Decision Boundaries and Considering More Complex Fits
+
+Adding a quadratic term does not appear to alter the training error rate. Neither does adding a cubic term. This indicates that neither are an improvement over our initial regression so we should maintain a linear fit and decision boundary.
+
+```{r}
+lreg = glm(formula = trainY ~ first2scores, family = "binomial")
+
+preds = predict.glm(lreg)
+preds = ifelse(preds > 0.5, 1, 0)
+
+lregMisClassRate = mean(preds != trainY)
+lregMisClassRate
+
+scores.quad = cbind(first2scores, first2scores[,1]^2)
+
+lregquad = glm(formula = trainY ~ scores.quad)
+
+preds = predict.glm(lregquad)
+preds = ifelse(preds > 0.5, 1, 0)
+
+lregquadMisClassRate = mean(preds != trainY)
+lregquadMisClassRate
+
+scores.cube = cbind(scores.quad, first2scores[,1]^3)
+lregcube = glm(trainY ~ scores.cube)
+preds = predict.glm(lregcube)
+preds = ifelse(preds > 0.5, 1, 0)
+lregcubeMisClassRate = mean(preds != trainY)
+lregcubeMisClassRate
+
+#x1vals = seq(min(first2scores[,1]), max(first2scores[,1]), by = 1000)
+#x2vals = (0.5 - lregquad$coefficients[1] - (lregquad$coefficients[2]*x1vals) -
+#            (lregquad$coefficients[4]*(x1vals^2))) / lregquad$coefficients[3]
+#plot(first2scores, pch = as.character(trainY))
+#points(x1vals, x2vals, pch = 19, col = "blue")
+
+```
+
+The following code for decision boundaries: linear decision boundary appears to be a good fit, quadratic/cubic decision boundaries show no improvement visually or in misclassification rate.  
+
+```{r}
+lreg = glm(formula = trainY ~ first2scores, family = "binomial")
+summary(lreg)
+
+plot(first2scores, pch = as.character(trainY))
+abline(a = lreg$coefficients[3]/lreg$coefficients[1], b = -lreg$coefficients[2]/lreg$coefficients[1], col = "blue", lwd = 2)
+```
+
+```{r}
+lregquad = glm(formula = trainY ~ scores.quad)
+
+x1vals = seq(min(first2scores[,1]), max(first2scores[,1]), by = 1000)
+x2vals = (0.5 - lregquad$coefficients[3] - (lregquad$coefficients[2]*x1vals) -
+            (lregquad$coefficients[4]*(x1vals^2))) / lregquad$coefficients[1]
+
+plot(first2scores, pch = as.character(trainY))
+points(x1vals, x2vals, pch = 19, col = "blue")
+```
+
+```{r}
+lregcube = glm(trainY ~ scores.cube)
+
+x1vals = seq(min(first2scores[,1]), max(first2scores[,1]), by = 1000)
+x2vals = (0.5 - lregcube$coefficients[3] - (lregcube$coefficients[2]*x1vals) -
+  (lregcube$coefficients[4]*(x1vals^2)) - (lregcube$coefficients[5] *(x1vals^3))) / lregcube$coefficients[1]
+
+plot(first2scores, pch = as.character(trainY))
+points(x1vals, x2vals, pch = 19, col = "blue")
+
+```
+
