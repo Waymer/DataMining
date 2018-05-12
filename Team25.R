@@ -47,7 +47,7 @@ supModel1 <- function(testX) {
 library(randomForest)
 
 supModel2 <- function(testX) {
-	bag.tree = randomForest(label~., data = train, mtry=248, importance = T)
-	bag_yhat = predict(bag.tree, testX)
-	return(bag_yhat)
+  bag.tree <- randomForest(label~., data = train, mtry=248, importance = T)
+  bag_yhat <- predict(bag.tree, testX)
+  return(bag_yhat)
 }
