@@ -146,3 +146,21 @@ ggplot(knn_df, aes(x = k, y = c)) + geom_point() +
   geom_errorbar(aes(ymin=c-sd, ymax=c+sd)) + 
   labs(x = "K", y = "Misclassification Rate")
 ```
+
+###Classification Trees
+
+For our classification tree, we ran 5-fold cross validation to create a new tree for each different training set and compared the test errors. We found that the tree created from this method of cross validation was the same as the original tree created by using the entire training data set. We also used cross validation to determine the optimal tree size and found that it was actually a classification stump, with only one split in the tree on the value of the variable X206. 
+
+```{r, message=F,warning=F}
+library(tree)
+x <- read.table(file="trainX.txt",header=TRUE)
+y <- read.table(file="trainy.txt",header=TRUE)
+y$label = factor(y$label)
+train = cbind(x,y)
+tree.oj = tree(label~., data = train)
+prune.oj <- prune.misclass(tree.oj, best = 2)
+plot(prune.oj)
+text(prune.oj, pretty = 0)
+```
+
+Trees have inherently high variance and so if the values for X206 correspond to different labels in the test data, then the tree would produce a larger misclassification rate. Therefore, we decided to look at random forests, boosting, and bagging. Because we only had one error for our decision tree on the training set, we feel that boosting would not have a significant effect on classification. We decided to use random forests and bagging in order to reduce the variance in order to achieve better results on the test data. We found that bagging and random forests achieved the same misclassification rate on the training data (3%), which was slightly higher than the misclassification rate for the single decision tree (0.75%).
